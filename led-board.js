@@ -78,6 +78,12 @@ function getData(queryString) {
 function updateContent(data){
   const body = document.getElementsByTagName("main")[0];
   body.replaceChildren();
+
+  const stationName = document.getElementById("station-name");
+  if (stationName) {
+    stationName.textContent = data.stops?.[0]?.stop_name ?? '';
+  }
+  
   data.departures.forEach((row) => {
     const departure = document.createElement("div");
     departure.classList.add("row");
