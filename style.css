@@ -3,7 +3,7 @@
 }
 
 #station-name {
-    font-size: calc(128px * 1.4 / var(--displayed-rows));
+    font-size: calc(128px * 0.95 / var(--displayed-rows));
     font-weight: bold;
     text-align: center;
     padding: 4px 8px;
