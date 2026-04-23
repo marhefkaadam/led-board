@@ -158,11 +158,16 @@ const updateClockTimer = setInterval(function () {
 },1000);
 
 function scaleBoard() {
-  const scale = window.innerWidth / 384;
+  document.body.style.transform = 'none';
+  document.body.style.height = 'auto';
+
+  const scaleX = window.innerWidth / 384;
+  const naturalHeight = document.body.scrollHeight;
+  const scaleY = window.innerHeight / naturalHeight;
+  const scale = Math.min(scaleX, scaleY);
+
   document.body.style.transform = `scale(${scale})`;
-  document.body.style.transformOrigin = 'top left';
   document.body.style.height = `${window.innerHeight / scale}px`;
-  document.body.style.width = '384px';
 }
 
 scaleBoard();
