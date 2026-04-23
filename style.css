@@ -2,6 +2,16 @@
   --displayed-rows: 6;
 }
 
+#station-name {
+    color: #ff8c00;
+    font-size: 1.4em;
+    font-weight: bold;
+    text-align: center;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 body {
   background-color: black;
   color: white;
