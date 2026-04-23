@@ -160,5 +160,10 @@ const updateClockTimer = setInterval(function () {
 function scaleBoard() {
   const scale = window.innerWidth / 384;
   document.body.style.transform = `scale(${scale})`;
+  document.body.style.transformOrigin = 'top left';
   document.body.style.height = `${window.innerHeight / scale}px`;
+  document.body.style.width = '384px';
 }
+
+scaleBoard();
+window.addEventListener('resize', scaleBoard);
