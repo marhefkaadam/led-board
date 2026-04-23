@@ -23,7 +23,7 @@ body {
   padding: 0;
   margin: 0;
   width: 384px;
-  height: 128px;
+  min-height: 128px;
   overflow: hidden;
   font-variant-numeric: tabular-nums;
   /* transform: scale(9.43); /* Tímto se zapíná zvětšení na 1:1 při zobrazení na 96 dpi monitoru) */
