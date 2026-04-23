@@ -1,1 +1,1 @@
-const KEY = "<insert your Golemio API key here>";
+const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTI4MSwiaWF0IjoxNzc2OTgwODA4LCJleHAiOjExNzc2OTgwODA4LCJpc3MiOiJnb2xlbWlvIiwianRpIjoiNDJmM2RmNDgtMjVkNC00Y2MyLWE2NzgtYzU3NmIzMDJmM2VlIn0.sIAV_CxCQrH03NM87VCrBoQOPT28mLmPulEVVt_W_B0";
