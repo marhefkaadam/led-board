@@ -156,3 +156,9 @@ const getDataTimer = setInterval(function () {
 const updateClockTimer = setInterval(function () {
   updateClock();
 },1000);
+
+function scaleBoard() {
+  const scale = window.innerWidth / 384;
+  document.body.style.transform = `scale(${scale})`;
+  document.body.style.height = `${window.innerHeight / scale}px`;
+}
