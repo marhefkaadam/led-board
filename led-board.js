@@ -6,14 +6,15 @@ const SETTINGS = {
 
 const PARAMETERS = {
     "airCondition": true,
-    "aswIds": ["539_1"],
+    "aswIds": ["539"],
     "filter": "routeHeadingOnce",
-    "limit": 5,
+    "limit": 8,
     "skip": "atStop",
-    "minutesAfter": 99
+    "minutesAfter": 999
 }
 
 const dayOfWeek = ["Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota"];
+const AFTER_MINUTES_THRESHOLD = 45;
 
 // Parse URL params manually to support repeated keys
 let searchString = new URLSearchParams(document.location.search);
@@ -158,7 +159,22 @@ function updateContent(dataArray) {
 
                 const arrival = document.createElement("td");
                 arrival.classList.add("arrival");
-                arrival.textContent = row.departure_timestamp.minutes;
+                const minutes = row.departure_timestamp?.minutes;
+                const minutesNum = parseInt(minutes);
+                if (!isNaN(minutesNum) && minutesNum > AFTER_MINUTES_THRESHOLD) {
+                    // Parse the scheduled or predicted timestamp and format as H:MM
+                    const timestamp = row.departure_timestamp.predicted ?? row.departure_timestamp.scheduled;
+                    if (timestamp) {
+                        const date = new Date(timestamp);
+                        const h = date.getHours().toString().padStart(2, '0');
+                        const m = date.getMinutes().toString().padStart(2, '0');
+                        arrival.textContent = `${h}:${m}`;
+                    } else {
+                        arrival.textContent = minutes ?? '';
+                    }
+                } else {
+                    arrival.textContent = minutes ?? '';
+                }
                 tr.appendChild(arrival);
 
                 table.appendChild(tr);
