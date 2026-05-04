@@ -2,6 +2,32 @@
   --displayed-rows: 6;
 }
 
+.stop-header {
+    font-size: calc(128px * 0.95 / var(--displayed-rows));
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 8px;
+    border-top: 1px solid #444;
+    margin-top: 2px;
+}
+
+.direction-header {
+    font-size: calc(128px * 0.70 / var(--displayed-rows));
+    color: #aaa;
+    padding: 2px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.error-message {
+    text-align: center;
+    color: #ff4444;
+    padding: 8px;
+    font-size: calc(128px * 0.7 / var(--displayed-rows));
+}
+
 #station-name {
     font-size: calc(128px * 0.95 / var(--displayed-rows));
     font-weight: bold;

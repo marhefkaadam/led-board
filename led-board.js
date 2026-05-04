@@ -75,54 +75,81 @@ function getData(queryString) {
 }
 
 // Create rows with departures and insert them into document
-function updateContent(data){
-  const body = document.getElementsByTagName("main")[0];
-  body.replaceChildren();
+function updateContent(data) {
+    const main = document.getElementsByTagName("main")[0];
+    main.replaceChildren();
 
-  const stationName = document.getElementById("station-name");
-  if (stationName) {
-    stationName.textContent = data.stops?.[0]?.stop_name ?? '';
-  }
-  
-  data.departures.forEach((row) => {
-    const departure = document.createElement("div");
-    departure.classList.add("row");
-    departure.classList.add("departure");
-
-    const route = document.createElement("div");
-    route.classList.add("route");
-    route.textContent = row.route.short_name;
-    departure.appendChild(route);
-
-    const accessible = document.createElement("div");
-    accessible.classList.add("accessible");
-    if (row.trip.is_wheelchair_accessible) {
-      const wheelchair = document.createElement("img");
-      wheelchair.setAttribute("src","accessible.svg");
-      accessible.appendChild(wheelchair);
+    // Deduplicate stop names for the top header
+    const uniqueNames = [...new Set(data.stops.map(s => s.stop_name))];
+    const stationName = document.getElementById("station-name");
+    if (stationName) {
+        stationName.textContent = uniqueNames.join(' / ');
     }
-    departure.appendChild(accessible);
 
-    const airCondition = document.createElement("div");
-    airCondition.classList.add("aircondition");
-    if (row.trip.is_air_conditioned) {
-      const aircondition = document.createElement("img");
-      aircondition.setAttribute("src","snowflake.svg");
-      airCondition.appendChild(aircondition);
-    }
-    departure.appendChild(airCondition);
+    // Group departures by stop_id
+    const stopMap = new Map();
+    data.stops.forEach(stop => stopMap.set(stop.stop_id, { stop, departures: [] }));
+    data.departures.forEach(dep => {
+        const group = stopMap.get(dep.stop.id);
+        if (group) group.departures.push(dep);
+    });
 
-    const headsign = document.createElement("div");
-    headsign.classList.add("headsign");
-    headsign.textContent = row.trip.headsign;
-    departure.appendChild(headsign);
+    // Count how many stops actually have departures
+    const stopsWithDepartures = [...stopMap.values()].filter(g => g.departures.length > 0);
 
-    const arrival = document.createElement("div");
-    arrival.classList.add("arrival");
-    arrival.textContent = row.departure_timestamp.minutes;
-    departure.appendChild(arrival);
-    body.appendChild(departure);
-  });
+    stopMap.forEach(({ stop, departures }) => {
+        if (departures.length === 0) return;
+
+        // Show platform header only if there are multiple platforms with departures
+        if (stopsWithDepartures.length > 1) {
+            const stopHeader = document.createElement("div");
+            stopHeader.classList.add("stop-header");
+            stopHeader.textContent = `Nástupiště ${stop.platform_code}`;
+            main.appendChild(stopHeader);
+        }
+
+        departures.forEach(row => {
+            const departure = document.createElement("div");
+            departure.classList.add("row", "departure");
+
+            const route = document.createElement("div");
+            route.classList.add("route");
+            route.textContent = row.route.short_name;
+            departure.appendChild(route);
+
+            const accessible = document.createElement("div");
+            accessible.classList.add("accessible");
+            if (row.trip.is_wheelchair_accessible) {
+                const wheelchair = document.createElement("img");
+                wheelchair.setAttribute("src", "accessible.svg");
+                accessible.appendChild(wheelchair);
+            }
+            departure.appendChild(accessible);
+
+            const airCondition = document.createElement("div");
+            airCondition.classList.add("aircondition");
+            if (row.trip.is_air_conditioned) {
+                const aircondition = document.createElement("img");
+                aircondition.setAttribute("src", "snowflake.svg");
+                airCondition.appendChild(aircondition);
+            }
+            departure.appendChild(airCondition);
+
+            const headsign = document.createElement("div");
+            headsign.classList.add("headsign");
+            headsign.textContent = row.trip.headsign;
+            departure.appendChild(headsign);
+
+            const arrival = document.createElement("div");
+            arrival.classList.add("arrival");
+            arrival.textContent = row.departure_timestamp.minutes;
+            departure.appendChild(arrival);
+
+            main.appendChild(departure);
+        });
+    });
+
+    scaleBoard();
 }
 
 function updateClock(){
@@ -142,8 +169,17 @@ function updateClock(){
 }
 
 // Set fulscreen innformation text
-function fullScreenMessage(content = ""){
-  // TODO Content of full-screen message
+function fullScreenMessage(content = "Chyba připojení") {
+    const main = document.getElementsByTagName("main")[0];
+    main.replaceChildren();
+
+    const stationName = document.getElementById("station-name");
+    if (stationName) stationName.textContent = '';
+
+    const msg = document.createElement("div");
+    msg.classList.add("error-message");
+    msg.textContent = content;
+    main.appendChild(msg);
 }
 
 // Timer for content updates 20 s
