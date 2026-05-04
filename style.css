@@ -61,20 +61,49 @@ main {
   display: table;
 }
 
+/*.row {*/
+/*  display: table-row;*/
+/*  width: 100%;*/
+/*}*/
+
+/*.row div {*/
+/*  display: table-cell;*/
+/*  vertical-align: middle;*/
+/*}*/
+
+/* Remove or replace old .row and .row div rules */
 .row {
-  display: table-row;
-  width: 100%;
+    display: table-row;
+    width: 100%;
 }
 
 .row div {
-  display: table-cell;
-  vertical-align: middle;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+main table td {
+    vertical-align: middle;
+    padding: 1px 0;
+}
+
+.platform-label {
+    font-size: calc(128px * 0.95 / var(--displayed-rows));
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0 8px;
+    border-right: 1px solid #444;
+    width: 1em;        /* fixed slim width */
+    min-width: unset;  /* remove the old min-width */
+    letter-spacing: 0.05em;
 }
 
 .route {
-  width: 10%;
-  padding-right: 10px;
-  text-align: right;
+    width: 10%;
+    padding-right: 10px;
+    text-align: right;
+    padding-left: 8px;  /* gap between platform label and route number */
 }
 
 .accessible {
@@ -111,6 +140,7 @@ img {
 #datetime {
   display: flex;
   justify-content: space-between;
+  padding-top: 4px;
 }
 #colon {
   animation-name: blink;

@@ -79,14 +79,16 @@ function updateContent(data) {
     const main = document.getElementsByTagName("main")[0];
     main.replaceChildren();
 
-    // Deduplicate stop names for the top header
     const uniqueNames = [...new Set(data.stops.map(s => s.stop_name))];
     const stationName = document.getElementById("station-name");
     if (stationName) {
         stationName.textContent = uniqueNames.join(' / ');
     }
 
-    // Group departures by stop_id
+    const table = document.createElement("table");
+    table.style.width = "100%";
+    table.style.borderCollapse = "collapse";
+
     const stopMap = new Map();
     data.stops.forEach(stop => stopMap.set(stop.stop_id, { stop, departures: [] }));
     data.departures.forEach(dep => {
@@ -94,61 +96,71 @@ function updateContent(data) {
         if (group) group.departures.push(dep);
     });
 
-    // Count how many stops actually have departures
     const stopsWithDepartures = [...stopMap.values()].filter(g => g.departures.length > 0);
+    // const multiPlatform = stopsWithDepartures.length > 1;  // Show platform column only if there are multiple platforms with departures
+    const multiPlatform = true; // Always show platform column, even if there is only one platform with departures
 
-    stopMap.forEach(({ stop, departures }) => {
-        if (departures.length === 0) return;
-
-        // Show platform header only if there are multiple platforms with departures
-        if (stopsWithDepartures.length > 1) {
-            const stopHeader = document.createElement("div");
-            stopHeader.classList.add("stop-header");
-            stopHeader.textContent = `Nástupiště ${stop.platform_code}`;
-            main.appendChild(stopHeader);
+    stopsWithDepartures.forEach(({ stop, departures }, groupIndex) => {
+        // Add spacer row between platforms
+        if (groupIndex > 0) {
+            const spacer = document.createElement("tr");
+            const spacerCell = document.createElement("td");
+            spacerCell.colSpan = 6;
+            spacerCell.style.padding = "4px 0";
+            spacer.appendChild(spacerCell);
+            table.appendChild(spacer);
         }
 
-        departures.forEach(row => {
-            const departure = document.createElement("div");
-            departure.classList.add("row", "departure");
+        departures.forEach((row, rowIndex) => {
+            const tr = document.createElement("tr");
 
-            const route = document.createElement("div");
+            // Platform label cell — only on first row, spans all departure rows
+            if (multiPlatform && rowIndex === 0) {
+                const platformCell = document.createElement("td");
+                platformCell.rowSpan = departures.length;
+                platformCell.classList.add("platform-label");
+                platformCell.textContent = stop.platform_code;
+                tr.appendChild(platformCell);
+            }
+
+            const route = document.createElement("td");
             route.classList.add("route");
             route.textContent = row.route.short_name;
-            departure.appendChild(route);
+            tr.appendChild(route);
 
-            const accessible = document.createElement("div");
+            const accessible = document.createElement("td");
             accessible.classList.add("accessible");
             if (row.trip.is_wheelchair_accessible) {
                 const wheelchair = document.createElement("img");
                 wheelchair.setAttribute("src", "accessible.svg");
                 accessible.appendChild(wheelchair);
             }
-            departure.appendChild(accessible);
+            tr.appendChild(accessible);
 
-            const airCondition = document.createElement("div");
+            const airCondition = document.createElement("td");
             airCondition.classList.add("aircondition");
             if (row.trip.is_air_conditioned) {
                 const aircondition = document.createElement("img");
                 aircondition.setAttribute("src", "snowflake.svg");
                 airCondition.appendChild(aircondition);
             }
-            departure.appendChild(airCondition);
+            tr.appendChild(airCondition);
 
-            const headsign = document.createElement("div");
+            const headsign = document.createElement("td");
             headsign.classList.add("headsign");
             headsign.textContent = row.trip.headsign;
-            departure.appendChild(headsign);
+            tr.appendChild(headsign);
 
-            const arrival = document.createElement("div");
+            const arrival = document.createElement("td");
             arrival.classList.add("arrival");
             arrival.textContent = row.departure_timestamp.minutes;
-            departure.appendChild(arrival);
+            tr.appendChild(arrival);
 
-            main.appendChild(departure);
+            table.appendChild(tr);
         });
     });
 
+    main.appendChild(table);
     scaleBoard();
 }
 
@@ -158,7 +170,7 @@ function updateClock(){
   " " +
   now.getDate().toString().padStart(2,"0") +
   ".&thinsp;" +
-  now.getMonth().toString().padStart(2,"0") +
+  (now.getMonth() + 1).toString().padStart(2,"0") +
   ".&thinsp;" +
   now.getFullYear().toString().padStart(2,"0");
   const hours = now.getHours().toString().padStart(2,"0");
