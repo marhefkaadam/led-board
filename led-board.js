@@ -206,16 +206,17 @@ const updateClockTimer = setInterval(function () {
 },1000);
 
 function scaleBoard() {
-  document.body.style.transform = 'none';
-  document.body.style.height = 'auto';
+    const board = document.getElementById('board');
+    board.style.transform = 'none';
+    board.style.height = 'auto';
 
-  const scaleX = window.innerWidth / 384;
-  const naturalHeight = document.body.scrollHeight;
-  const scaleY = window.innerHeight / naturalHeight;
-  const scale = Math.min(scaleX, scaleY);
+    const scaleX = window.innerWidth / 384;
+    const naturalHeight = board.scrollHeight;
+    const scaleY = window.innerHeight / naturalHeight;
+    const scale = Math.min(scaleX, scaleY);
 
-  document.body.style.transform = `scale(${scale})`;
-  document.body.style.height = `${window.innerHeight / scale}px`;
+    board.style.transform = `scale(${scale})`;
+    board.style.height = `${window.innerHeight / scale}px`;
 }
 
 scaleBoard();
