@@ -7,7 +7,7 @@ const SETTINGS = {
 const PARAMETERS = {
     "airCondition": true,
     "aswIds": ["539"],
-    "filter": "routeHeadingOnce",
+    "filter": "none",
     "limit": 8,
     "skip": "atStop",
     "minutesAfter": 999
@@ -23,7 +23,7 @@ let aswIds = searchString.getAll("aswIds[]");
 if (aswIds.length === 0) aswIds = searchString.getAll("aswIds");
 if (aswIds.length === 0) aswIds = PARAMETERS.aswIds;
 
-const filter = searchString.get("filter") ?? PARAMETERS.filter;
+const filter = PARAMETERS.filter;
 const limit = searchString.get("limit") ?? PARAMETERS.limit;
 const minutesAfter = searchString.get("minutesAfter") ?? PARAMETERS.minutesAfter;
 const airCondition = searchString.get("airCondition") ?? PARAMETERS.airCondition;
@@ -43,19 +43,53 @@ function buildQueryString(aswId) {
 }
 
 let initialLoadDone = false;
+let displayedStopCount = aswIds.length;
 
 function getData() {
-    const fetches = aswIds.map(id => fetchStop(id));
+    const fetches = aswIds.map(id => fetchStop(id).then(data => ({id, data})));
     Promise.all(fetches)
         .then(results => {
             initialLoadDone = true;
-            updateContent(results);
+            updateContent(mergeStopResponses(results));
         })
         .catch((err) => {
             console.error('Failed to fetch:', err);
             if (initialLoadDone) fullScreenMessage();
             // on first load failure, silently retry on next timer tick
         });
+}
+
+function aswNodeId(aswId) {
+    return String(aswId).split("_")[0];
+}
+
+function mergeStopResponses(results) {
+    const grouped = new Map();
+    results.forEach(({id, data}) => {
+        const nodeId = aswNodeId(id);
+        if (!grouped.has(nodeId)) {
+            grouped.set(nodeId, {
+                stops: new Map(),
+                departures: [],
+                departureKeys: new Set()
+            });
+        }
+        const group = grouped.get(nodeId);
+        data.stops.forEach(stop => group.stops.set(stop.stop_id, stop));
+        data.departures.forEach(departure => {
+            const key = departure.id || JSON.stringify(departure);
+            if (!group.departureKeys.has(key)) {
+                group.departureKeys.add(key);
+                group.departures.push(departure);
+            }
+        });
+    });
+    const nonEmptyGroups = [...grouped.values()].filter(group => group.departures.length > 0);
+    displayedStopCount = nonEmptyGroups.length;
+    return nonEmptyGroups.map(group => ({
+        stops: [...group.stops.values()],
+        departures: group.departures
+    }));
 }
 
 function fetchStop(aswId) {
@@ -112,7 +146,7 @@ function updateContent(dataArray) {
             if (groupIndex > 0) {
                 const spacer = document.createElement("tr");
                 const spacerCell = document.createElement("td");
-                spacerCell.colSpan = 6;
+                spacerCell.colSpan = 5;
                 spacerCell.style.padding = "4px 0";
                 spacer.appendChild(spacerCell);
                 table.appendChild(spacer);
@@ -133,15 +167,6 @@ function updateContent(dataArray) {
                 route.classList.add("route");
                 route.textContent = row.route.short_name;
                 tr.appendChild(route);
-
-                const accessible = document.createElement("td");
-                accessible.classList.add("accessible");
-                if (row.trip.is_wheelchair_accessible) {
-                    const wheelchair = document.createElement("img");
-                    wheelchair.setAttribute("src", "accessible.svg");
-                    accessible.appendChild(wheelchair);
-                }
-                tr.appendChild(accessible);
 
                 const airConditionCell = document.createElement("td");
                 airConditionCell.classList.add("aircondition");
@@ -193,14 +218,14 @@ function scaleBoard() {
     board.style.transform = 'none';
     board.style.height = 'auto';
 
-    const scaleX = window.innerWidth / (384 * aswIds.length);
+    const scaleX = window.innerWidth / (384 * displayedStopCount);
     const naturalHeight = board.scrollHeight;
     const scaleY = window.innerHeight / naturalHeight;
     const scale = Math.min(scaleX, scaleY);
 
     board.style.transform = `scale(${scale})`;
     board.style.height = `${window.innerHeight / scale}px`;
-    board.style.width = `${384 * aswIds.length}px`;
+    board.style.width = `${384 * displayedStopCount}px`;
 }
 
 function updateClock() {
