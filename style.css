@@ -168,6 +168,8 @@ img {
     box-sizing: border-box;
     width: min(92vw, 680px);
     max-width: calc(100vw - 32px);
+    height: fit-content;
+    min-height: 0;
     max-height: calc(100vh - 32px);
     margin: auto;
     overflow: hidden;
@@ -190,7 +192,8 @@ img {
     flex-direction: column;
     gap: 10px;
     padding: 24px;
-    height: min(90vh, 800px);
+    height: fit-content;
+    min-height: 0;
     max-height: calc(100vh - 32px);
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -200,7 +203,7 @@ img {
     #settings-dialog {
         width: calc(100vw - 32px);
         max-width: calc(100vw - 32px);
-        height: min(88vh, 760px);
+        height: fit-content;
         max-height: calc(100vh - 32px);
         margin: auto;
     }
@@ -208,8 +211,8 @@ img {
     .settings-panel {
         gap: 14px;
         padding: 22px;
-        height: 100%;
-        max-height: none;
+        height: fit-content;
+        max-height: calc(100vh - 32px);
     }
 
     .settings-header {
@@ -548,7 +551,7 @@ img {
     .settings-panel {
         padding: 28px;
         gap: 12px;
-        height: min(90vh, 800px);
+        height: fit-content;
     }
 
     .settings-header h1 {
@@ -596,5 +599,263 @@ img {
 
     .selected-stops {
         max-height: 132px;
+    }
+}
+
+/* Touch-sized settings controls for phones and tablets. Keep this block last
+   so it overrides the desktop defaults above. */
+@media (max-width: 1199px) {
+    #settings-dialog {
+        width: calc(100vw - 32px);
+        max-width: 900px;
+        height: fit-content;
+        max-height: calc(100vh - 32px);
+        margin: auto;
+    }
+
+    @media (min-width: 1200px) and (orientation: landscape) {
+        #settings-dialog {
+            width: min(72vw, 1500px);
+            max-width: calc(100vw - 32px);
+            height: fit-content;
+            max-height: calc(100vh - 32px);
+            margin: auto;
+        }
+
+        .settings-panel {
+            height: fit-content;
+            max-height: calc(100vh - 32px);
+            gap: 22px;
+            padding: 40px;
+        }
+
+        .settings-header {
+            gap: 24px;
+            padding-bottom: 20px;
+        }
+
+        .settings-header h1 {
+            font-size: 42px;
+        }
+
+        .settings-header-actions {
+            gap: 14px;
+        }
+
+        .settings-header-actions button,
+        .settings-panel button {
+            min-height: 72px;
+            padding: 14px 24px;
+            font-size: 25px;
+        }
+
+        .settings-header-actions button {
+            min-height: 60px;
+        }
+
+        .settings-panel label {
+            font-size: 25px;
+        }
+
+        .settings-panel input {
+            min-height: 72px;
+            padding: 16px 18px;
+            font-size: 27px;
+        }
+
+        .number-stepper {
+            gap: 16px;
+        }
+
+        .number-stepper button {
+            width: 72px;
+            font-size: 36px;
+        }
+
+        .stop-suggestions {
+            max-height: 420px;
+        }
+
+        .stop-suggestion,
+        .selected-stop,
+        .nearest-stop-pill {
+            font-size: 25px;
+        }
+
+        .stop-suggestion {
+            min-height: 72px;
+            padding: 16px 18px;
+        }
+
+        .selected-stops {
+            max-height: 220px;
+        }
+
+        .selected-stop {
+            padding: 8px 20px;
+        }
+
+        .nearest-stop-group {
+            gap: 14px;
+            padding: 20px;
+        }
+
+        .nearest-stop-group strong {
+            font-size: 25px;
+        }
+
+        .location-status,
+        .settings-status {
+            font-size: 22px;
+        }
+    }
+
+    .settings-panel {
+        height: fit-content;
+        max-height: calc(100vh - 32px);
+        gap: 18px;
+        padding: 32px;
+    }
+
+    .settings-header {
+        gap: 18px;
+        padding-bottom: 16px;
+    }
+
+    .settings-header h1 {
+        font-size: 34px;
+    }
+
+    .settings-header-actions {
+        gap: 12px;
+    }
+
+    .settings-header-actions button,
+    .settings-panel button {
+        min-height: 64px;
+        padding: 12px 20px;
+        font-size: 22px;
+    }
+
+    .settings-header-actions button {
+        min-height: 56px;
+        padding: 10px 18px;
+    }
+
+    .settings-panel label {
+        margin-top: 10px;
+        font-size: 22px;
+    }
+
+    .settings-panel input {
+        min-height: 64px;
+        padding: 14px 16px;
+        font-size: 23px;
+    }
+
+    .number-stepper {
+        gap: 14px;
+    }
+
+    .number-stepper button {
+        width: 64px;
+        font-size: 32px;
+    }
+
+    .stop-suggestions {
+        max-height: 360px;
+    }
+
+    .stop-suggestion,
+    .selected-stop,
+    .nearest-stop-pill {
+        font-size: 21px;
+    }
+
+    .stop-suggestion {
+        min-height: 64px;
+        padding: 14px 16px;
+    }
+
+    .selected-stops {
+        max-height: 180px;
+        padding: 4px 8px;
+    }
+
+    .selected-stop {
+        padding: 7px 18px;
+    }
+
+    .selected-stop button {
+        width: 28px;
+        height: 28px;
+        font-size: 24px;
+    }
+
+    .nearest-stop-group {
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .nearest-stop-group strong {
+        font-size: 21px;
+    }
+
+    .location-status,
+    .settings-status {
+        font-size: 19px;
+    }
+}
+
+@media (min-width: 1200px) and (orientation: landscape) {
+    #settings-dialog {
+        width: min(72vw, 1500px);
+        max-width: calc(100vw - 32px);
+        height: fit-content;
+        max-height: calc(100vh - 32px);
+        margin: auto;
+    }
+
+    .settings-panel {
+        height: fit-content;
+        max-height: calc(100vh - 32px);
+        gap: 22px;
+        padding: 40px;
+    }
+
+    .settings-header h1 {
+        font-size: 42px;
+    }
+
+    .settings-header-actions button,
+    .settings-panel button {
+        min-height: 72px;
+        padding: 14px 24px;
+        font-size: 25px;
+    }
+
+    .settings-panel label {
+        font-size: 25px;
+    }
+
+    .settings-panel input {
+        min-height: 72px;
+        padding: 16px 18px;
+        font-size: 27px;
+    }
+
+    .number-stepper button {
+        width: 72px;
+        font-size: 36px;
+    }
+
+    .stop-suggestions {
+        max-height: 420px;
+    }
+
+    .stop-suggestion,
+    .selected-stop,
+    .nearest-stop-pill {
+        font-size: 25px;
     }
 }
