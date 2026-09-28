@@ -169,6 +169,7 @@ img {
     width: min(92vw, 680px);
     max-width: calc(100vw - 32px);
     max-height: calc(100vh - 32px);
+    margin: auto;
     overflow: hidden;
     padding: 0;
     border: 0;
@@ -193,6 +194,87 @@ img {
     max-height: calc(100vh - 32px);
     overflow-y: auto;
     overscroll-behavior: contain;
+}
+
+@media (max-width: 599px) {
+    #settings-dialog {
+        width: calc(100vw - 32px);
+        max-width: calc(100vw - 32px);
+        height: min(88vh, 760px);
+        max-height: calc(100vh - 32px);
+        margin: auto;
+    }
+
+    .settings-panel {
+        gap: 14px;
+        padding: 22px;
+        height: 100%;
+        max-height: none;
+    }
+
+    .settings-header {
+        gap: 12px;
+        padding-bottom: 12px;
+    }
+
+    .settings-header h1 {
+        font-size: 26px;
+    }
+
+    .settings-header-actions {
+        gap: 8px;
+    }
+
+    .settings-header-actions button,
+    .settings-panel button {
+        min-height: 48px;
+        padding: 8px 14px;
+        font-size: 17px;
+    }
+
+    .settings-header-actions button {
+        min-height: 44px;
+        padding: 7px 12px;
+    }
+
+    .settings-panel label {
+        margin-top: 8px;
+        font-size: 17px;
+    }
+
+    .settings-panel input {
+        min-height: 48px;
+        padding: 10px 12px;
+        font-size: 18px;
+    }
+
+    .number-stepper {
+        gap: 10px;
+    }
+
+    .number-stepper button {
+        width: 48px;
+        font-size: 25px;
+    }
+
+    .stop-suggestion,
+    .selected-stop,
+    .nearest-stop-pill {
+        font-size: 17px;
+    }
+
+    .stop-suggestion {
+        min-height: 48px;
+        padding: 10px 12px;
+    }
+
+    .selected-stops {
+        max-height: 128px;
+    }
+
+    .settings-status {
+        font-size: 15px;
+    }
 }
 
 .settings-header,
