@@ -74,9 +74,27 @@ function featureId(feature) {
     return `${properties.asw_node_id}_${properties.asw_stop_id}`;
 }
 
+function displayPlatformCode(feature) {
+    const properties = feature.properties;
+    if (properties.platform_code) return properties.platform_code;
+    if (String(properties.route_type) === "1") {
+        const routeNames = String(properties.routes_names || "").trim();
+        return routeNames ? `Metro ${routeNames}` : "Metro";
+    }
+    if (String(properties.route_type) === "2") return "Vlak";
+    return "neuvedeno";
+}
+
+function isTransitLabel(label) {
+    return label.startsWith("Metro") || label === "Vlak";
+}
+
 function featureLabel(feature) {
     const properties = feature.properties;
-    const platform = properties.platform_code ? `, Platforma ${properties.platform_code}` : "";
+    const platformCode = displayPlatformCode(feature);
+    const platform = isTransitLabel(platformCode)
+        ? `, ${platformCode}`
+        : `, Platforma ${platformCode}`;
     return `${properties.stop_name}${platform} (${featureId(feature)})`;
 }
 
@@ -202,7 +220,10 @@ function showNearestStops(stops) {
             const platform = document.createElement("button");
             platform.type = "button";
             platform.className = "nearest-stop-pill";
-            platform.textContent = `Platforma ${feature.properties.platform_code || feature.properties.asw_stop_id}`;
+            const platformCode = displayPlatformCode(feature);
+            platform.textContent = isTransitLabel(platformCode)
+                ? platformCode
+                : `Platforma ${platformCode}`;
             platform.addEventListener("click", () => {
                 const nodeId = String(feature.properties.asw_node_id);
                 selected = selected.filter(item =>

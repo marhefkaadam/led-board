@@ -113,6 +113,92 @@ function fetchStop(aswId) {
     });
 }
 
+function platformCode(group) {
+    return group.departures.find(departure => departure.stop?.platform_code)?.stop.platform_code
+        || group.stop.platform_code
+        || "";
+}
+
+function logoForRouteTypes(routeTypes) {
+    if (routeTypes.has(1)) return ["Metro_Prague_logo.svg", "Metro"];
+    if (routeTypes.has(2)) return ["Prague_train_logo.svg", "Train"];
+    return null;
+}
+
+function comparePlatformCodes(first, second) {
+    const firstCode = String(first || "").trim().toUpperCase();
+    const secondCode = String(second || "").trim().toUpperCase();
+    const firstParts = firstCode.match(/(\D*)(\d*)/);
+    const secondParts = secondCode.match(/(\D*)(\d*)/);
+    const lettersOrder = firstParts[1].localeCompare(secondParts[1], "en");
+    if (lettersOrder !== 0) return lettersOrder;
+    const firstNumber = firstParts[2] === "" ? -1 : Number(firstParts[2]);
+    const secondNumber = secondParts[2] === "" ? -1 : Number(secondParts[2]);
+    if (firstNumber !== secondNumber) return firstNumber - secondNumber;
+    return firstCode.localeCompare(secondCode, "en");
+}
+
+function compareDisplayGroups(first, second) {
+    if (first.transitType !== null || second.transitType !== null) {
+        if (first.transitType === null) return 1;
+        if (second.transitType === null) return -1;
+        if (first.transitType !== second.transitType) {
+            return first.transitType - second.transitType;
+        }
+        if (first.transitType === 2) {
+            const firstPlatform = String(first.transitLine || "").trim();
+            const secondPlatform = String(second.transitLine || "").trim();
+            if (!firstPlatform) return 1;
+            if (!secondPlatform) return -1;
+            return comparePlatformCodes(firstPlatform, secondPlatform);
+        }
+        return first.transitLine.localeCompare(second.transitLine);
+    }
+    return comparePlatformCodes(platformCode(first), platformCode(second));
+}
+
+function buildDisplayGroups(stopGroups) {
+    const displayGroups = [];
+    const transitGroups = new Map();
+
+    stopGroups.forEach(group => {
+        const regularDepartures = [];
+        group.departures.forEach(departure => {
+            const routeType = departure.route?.type;
+            if (routeType === 1 || routeType === 2) {
+                const line = String(departure.route?.short_name || "");
+                const departurePlatform = String(departure.stop?.platform_code || "").trim();
+                const transitGroupKey = routeType === 2
+                    ? departurePlatform
+                    : line;
+                const key = `${routeType}:${transitGroupKey}`;
+                if (!transitGroups.has(key)) {
+                    const transitGroup = {
+                        stop: group.stop,
+                        departures: [],
+                        transitType: routeType,
+                        transitLine: routeType === 2 ? departurePlatform : line
+                    };
+                    transitGroups.set(key, transitGroup);
+                    displayGroups.push(transitGroup);
+                }
+                transitGroups.get(key).departures.push(departure);
+            } else {
+                regularDepartures.push(departure);
+            }
+        });
+        if (regularDepartures.length > 0) {
+            displayGroups.push({
+                stop: group.stop,
+                departures: regularDepartures,
+                transitType: null,
+                transitLine: ""
+            });
+        }
+    });
+    return displayGroups.sort(compareDisplayGroups);
+}
+
 function updateContent(dataArray) {
     const container = document.getElementById("stops-container");
     container.replaceChildren();
@@ -140,9 +226,11 @@ function updateContent(dataArray) {
             if (group) group.departures.push(dep);
         });
 
-        const stopsWithDepartures = [...stopMap.values()].filter(g => g.departures.length > 0);
+        const stopsWithDepartures = buildDisplayGroups(
+            [...stopMap.values()].filter(g => g.departures.length > 0));
 
-        stopsWithDepartures.forEach(({ stop, departures }, groupIndex) => {
+        stopsWithDepartures.forEach((group, groupIndex) => {
+            const {stop, departures} = group;
             if (groupIndex > 0) {
                 const spacer = document.createElement("tr");
                 const spacerCell = document.createElement("td");
@@ -159,7 +247,34 @@ function updateContent(dataArray) {
                     const platformCell = document.createElement("td");
                     platformCell.rowSpan = departures.length;
                     platformCell.classList.add("platform-label");
-                    platformCell.textContent = stop.platform_code;
+                    if (group.transitType === 2) {
+                        platformCell.classList.add("train-platform-label");
+                    }
+                    const logo = group.transitType === null
+                        ? null
+                        : logoForRouteTypes(new Set([group.transitType]));
+                    if (logo) {
+                        const transitLogo = document.createElement("img");
+                        transitLogo.className = group.transitType === 2
+                            ? "metro-logo train-logo"
+                            : "metro-logo";
+                        transitLogo.src = logo[0];
+                        transitLogo.alt = logo[1];
+                        platformCell.appendChild(transitLogo);
+                        if (group.transitType === 2) {
+                            const trainPlatform = departures.find(departure =>
+                                departure.stop?.platform_code
+                            )?.stop.platform_code;
+                            if (trainPlatform) {
+                                const platformNumber = document.createElement("span");
+                                platformNumber.className = "train-platform";
+                                platformNumber.textContent = trainPlatform;
+                                platformCell.appendChild(platformNumber);
+                            }
+                        }
+                    } else {
+                        platformCell.textContent = platformCode({stop, departures});
+                    }
                     tr.appendChild(platformCell);
                 }
 
